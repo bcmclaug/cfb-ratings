@@ -1,0 +1,11 @@
+.venv/
+__pycache__/
+*.pyc
+
+# Local secrets and generated artifacts -- the cloud routine regenerates
+# these fresh from the live API every run, and the API key is supplied
+# separately (never committed).
+data/
+ratings_dashboard.html
+fbs_explorer.html
+sos_report.html

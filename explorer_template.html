@@ -1,0 +1,391 @@
+<title>FBS Team Finder</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Source+Sans+3:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@400;500;700&display=swap">
+<style>
+  :root {
+    color-scheme: light;
+    --bg:            #F4F6F2;
+    --surface:       #FDFEFC;
+    --surface-raised:#FFFFFF;
+    --ink:           #16211C;
+    --ink-secondary: #51605A;
+    --ink-muted:     #868F89;
+    --border:        rgba(22,33,28,0.12);
+    --border-strong: rgba(22,33,28,0.22);
+    --grid:          #E2E7DF;
+    --amber-fill:    #D98A3D;
+    --amber-text:    #8A5518;
+    --amber-wash:    rgba(217,138,61,0.14);
+    --rise-text:     #1F6B41;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      color-scheme: dark;
+      --bg:            #10140F;
+      --surface:       #161C14;
+      --surface-raised:#1B2218;
+      --ink:           #F2F4EE;
+      --ink-secondary: #B9C2B7;
+      --ink-muted:     #7C877E;
+      --border:        rgba(242,244,238,0.12);
+      --border-strong: rgba(242,244,238,0.22);
+      --grid:          #262E22;
+      --amber-fill:    #E6A864;
+      --amber-text:    #F0BE87;
+      --amber-wash:    rgba(230,168,100,0.16);
+      --rise-text:     #7CCB9D;
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --bg:            #10140F;
+    --surface:       #161C14;
+    --surface-raised:#1B2218;
+    --ink:           #F2F4EE;
+    --ink-secondary: #B9C2B7;
+    --ink-muted:     #7C877E;
+    --border:        rgba(242,244,238,0.12);
+    --border-strong: rgba(242,244,238,0.22);
+    --grid:          #262E22;
+    --amber-fill:    #E6A864;
+    --amber-text:    #F0BE87;
+    --amber-wash:    rgba(230,168,100,0.16);
+    --rise-text:     #7CCB9D;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--ink);
+    font-family: "Source Sans 3", system-ui, -apple-system, "Segoe UI", sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 980px; margin: 0 auto; padding: 28px 24px 64px; }
+  h1, h2, .num-xl { font-family: "Oswald", system-ui, sans-serif; letter-spacing: 0.01em; }
+
+  header.top { margin-bottom: 20px; }
+  header.top .eyebrow {
+    font-family: "JetBrains Mono", monospace; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--amber-text); margin: 0 0 4px;
+  }
+  header.top h1 { font-size: 28px; font-weight: 600; margin: 0; text-transform: uppercase; letter-spacing: 0.04em; text-wrap: balance; }
+  header.top p.sub { margin: 4px 0 0; color: var(--ink-secondary); font-size: 14.5px; max-width: 62ch; }
+  .page-nav { position: relative; display: inline-block; margin-top: 10px; }
+  .page-nav-toggle {
+    appearance: none; background: var(--surface-raised); border: 1px solid var(--border); color: var(--ink-secondary);
+    font-family: "Oswald", sans-serif; font-size: 12px; letter-spacing: 0.04em; text-transform: uppercase;
+    padding: 8px 12px; border-radius: 8px; cursor: pointer; display: inline-flex; align-items: center; gap: 7px;
+  }
+  .page-nav-toggle:hover { border-color: var(--border-strong); color: var(--ink); }
+  .page-nav-toggle .chev { font-size: 9px; transition: transform 0.15s; }
+  .page-nav.open .page-nav-toggle .chev { transform: rotate(180deg); }
+  .page-nav-menu {
+    position: absolute; top: calc(100% + 6px); left: 0; min-width: 240px; background: var(--surface-raised);
+    border: 1px solid var(--border-strong); border-radius: 10px; box-shadow: var(--shadow, 0 12px 28px rgba(0,0,0,0.18)); padding: 6px;
+    z-index: 20; display: none; flex-direction: column; gap: 1px;
+  }
+  .page-nav.open .page-nav-menu { display: flex; }
+  .page-nav-menu a {
+    display: block; padding: 8px 10px; border-radius: 6px; font-size: 13px; color: var(--ink); text-decoration: none;
+  }
+  .page-nav-menu a:hover { background: var(--amber-wash); color: var(--amber-text); }
+  .page-nav-menu a.current { color: var(--ink-muted); font-weight: 600; cursor: default; }
+  .page-nav-menu a.current:hover { background: none; color: var(--ink-muted); }
+
+  .panel { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 18px 20px 20px; }
+
+  .filter-block + .filter-block { margin-top: 18px; padding-top: 18px; border-top: 1px solid var(--border); }
+  .filter-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 10px; }
+  .filter-head .lbl { font-family: "Oswald", sans-serif; font-size: 12px; letter-spacing: 0.05em; text-transform: uppercase; color: var(--ink-muted); }
+  .filter-head .val { font-family: "JetBrains Mono", monospace; font-size: 13px; color: var(--ink); }
+
+  .conf-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .conf-chip {
+    border: 1px solid var(--border); background: var(--surface-raised); color: var(--ink-secondary);
+    border-radius: 999px; padding: 6px 12px; font-size: 12.5px; cursor: pointer; transition: all 0.12s;
+  }
+  .conf-chip:hover { border-color: var(--border-strong); color: var(--ink); }
+  .conf-chip.active { background: var(--amber-wash); border-color: var(--amber-fill); color: var(--ink); font-weight: 600; }
+  .conf-actions { display: flex; gap: 12px; margin-top: 10px; }
+  .conf-actions button {
+    appearance: none; background: none; border: none; color: var(--ink-muted); font-size: 12px; cursor: pointer;
+    text-decoration: underline; padding: 0;
+  }
+  .conf-actions button:hover { color: var(--amber-text); }
+
+  .range-wrap { position: relative; height: 32px; }
+  .range-wrap input[type=range] {
+    position: absolute; left: 0; right: 0; top: 10px; width: 100%; margin: 0; pointer-events: none;
+    -webkit-appearance: none; appearance: none; background: transparent;
+  }
+  .range-wrap input[type=range]::-webkit-slider-thumb {
+    pointer-events: auto; -webkit-appearance: none; appearance: none;
+    width: 16px; height: 16px; border-radius: 50%; background: var(--amber-fill);
+    border: 2px solid var(--surface); box-shadow: 0 0 0 1px var(--border-strong); cursor: pointer; margin-top: -7px;
+  }
+  .range-wrap input[type=range]::-moz-range-thumb {
+    pointer-events: auto; width: 16px; height: 16px; border-radius: 50%; background: var(--amber-fill);
+    border: 2px solid var(--surface); box-shadow: 0 0 0 1px var(--border-strong); cursor: pointer;
+  }
+  .range-wrap input[type=range]::-webkit-slider-runnable-track { height: 4px; background: transparent; }
+  .range-wrap input[type=range]::-moz-range-track { height: 4px; background: transparent; }
+  .range-track { position: absolute; left: 0; right: 0; top: 14px; height: 4px; border-radius: 2px; background: var(--grid); }
+  .range-fill { position: absolute; top: 14px; height: 4px; border-radius: 2px; background: var(--amber-fill); }
+  .range-ticks { display: flex; justify-content: space-between; margin-top: 6px; font-family: "JetBrains Mono", monospace; font-size: 10.5px; color: var(--ink-muted); }
+
+  .results-head { display: flex; align-items: baseline; justify-content: space-between; margin: 24px 0 10px; }
+  .results-head h2 { font-size: 15px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.05em; margin: 0; }
+  .results-head .count { font-family: "JetBrains Mono", monospace; font-size: 12.5px; color: var(--ink-muted); }
+
+  table.finder { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+  table.finder thead th {
+    text-align: left; padding: 9px 10px; font-family: "Oswald", sans-serif; font-size: 11px; letter-spacing: 0.05em;
+    text-transform: uppercase; color: var(--ink-muted); border-bottom: 1px solid var(--border); cursor: pointer; user-select: none; white-space: nowrap;
+  }
+  table.finder thead th:hover { color: var(--ink); }
+  table.finder thead th.sorted { color: var(--amber-text); }
+  table.finder tbody td { padding: 8px 10px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+  table.finder tbody tr:hover { background: var(--amber-wash); }
+  .c-rank { font-family: "JetBrains Mono", monospace; color: var(--ink-muted); width: 34px; }
+  .c-team { font-weight: 600; }
+  .c-conf { color: var(--ink-secondary); font-size: 12.5px; }
+  .c-record { font-family: "JetBrains Mono", monospace; color: var(--ink-secondary); text-align: right; white-space: nowrap; }
+  .c-rating { display: flex; align-items: center; gap: 8px; }
+  .c-rating .num { font-family: "JetBrains Mono", monospace; font-variant-numeric: tabular-nums; width: 44px; text-align: right; }
+  .rating-meter { flex: 1; max-width: 110px; height: 7px; background: var(--grid); border-radius: 4px; overflow: hidden; }
+  .rating-meter .fill { height: 100%; background: var(--amber-fill); border-radius: 4px; }
+
+  .empty-state { padding: 40px 10px; text-align: center; color: var(--ink-muted); font-size: 13.5px; }
+
+  footer.credit { margin-top: 24px; font-size: 12px; color: var(--ink-muted); }
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <p class="eyebrow">Independent · Bias-Resistant Power Ratings</p>
+    <h1>FBS Team Finder</h1>
+    <p class="sub">Browse all <span id="teamCount"></span> FBS teams by conference and rating as of <span id="weekLabel"></span>.</p>
+    <div class="page-nav" id="pageNav">
+      <button class="page-nav-toggle" id="pageNavToggle" aria-haspopup="true" aria-expanded="false">
+        Pages <span class="chev">&#9662;</span>
+      </button>
+      <div class="page-nav-menu" id="pageNavMenu" role="menu"></div>
+    </div>
+  </header>
+
+  <section class="panel">
+    <div class="filter-block">
+      <div class="filter-head"><span class="lbl">Conference</span></div>
+      <div class="conf-chips" id="confChips"></div>
+      <div class="conf-actions">
+        <button id="selectAll">Select all</button>
+        <button id="selectNone">Clear</button>
+      </div>
+    </div>
+
+    <div class="filter-block">
+      <div class="filter-head"><span class="lbl">Rating range</span><span class="val" id="rangeVal"></span></div>
+      <div class="range-wrap">
+        <div class="range-track"></div>
+        <div class="range-fill" id="rangeFill"></div>
+        <input type="range" id="rangeMin">
+        <input type="range" id="rangeMax">
+      </div>
+      <div class="range-ticks"><span id="tickMin"></span><span id="tickMax"></span></div>
+    </div>
+  </section>
+
+  <div class="results-head">
+    <h2 id="resultsTitle">Teams</h2>
+    <span class="count" id="resultsCount"></span>
+  </div>
+  <div class="panel" style="padding: 4px 0;">
+    <table class="finder">
+      <thead>
+        <tr>
+          <th data-sort="rank" class="sorted">Rk</th>
+          <th data-sort="team">School</th>
+          <th data-sort="conference">Conference</th>
+          <th data-sort="rating">Rating</th>
+          <th data-sort="record">Record</th>
+        </tr>
+      </thead>
+      <tbody id="resultsBody"></tbody>
+    </table>
+    <div class="empty-state" id="emptyState" style="display:none;">No teams match these filters.</div>
+  </div>
+
+  <footer class="credit">Ratings begin from an offseason blend of prior-season results, recruiting, transfer portal activity and coaching changes, then move each week by an Elo-style update with a full retroactive recompute of the season so far.</footer>
+</div>
+
+<script id="finderData" type="application/json">__DATA_JSON__</script>
+<script>
+(function(){
+  "use strict";
+  const DATA = JSON.parse(document.getElementById('finderData').textContent);
+  const TEAMS = DATA.teams; // [{team, conference, rating, rank, record}]
+  const CONFERENCES = DATA.conferences;
+  const RATING_MIN = Math.floor(DATA.ratingMin);
+  const RATING_MAX = Math.ceil(DATA.ratingMax);
+
+  document.getElementById('weekLabel').textContent = DATA.weekLabel;
+  document.getElementById('teamCount').textContent = TEAMS.length;
+  function initPageNav(pages) {
+    const nav = document.getElementById('pageNav');
+    const toggle = document.getElementById('pageNavToggle');
+    const menu = document.getElementById('pageNavMenu');
+    pages.forEach(p => {
+      if (!p.current && !p.url) return;
+      const a = document.createElement('a');
+      a.textContent = p.label;
+      if (p.current) {
+        a.href = '#'; a.className = 'current'; a.setAttribute('aria-current', 'page');
+        a.addEventListener('click', (e) => e.preventDefault());
+      } else {
+        a.href = p.url;
+      }
+      menu.appendChild(a);
+    });
+    toggle.addEventListener('click', () => {
+      const open = nav.classList.toggle('open');
+      toggle.setAttribute('aria-expanded', open);
+    });
+    document.addEventListener('click', (e) => {
+      if (!nav.contains(e.target)) { nav.classList.remove('open'); toggle.setAttribute('aria-expanded', 'false'); }
+    });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') { nav.classList.remove('open'); toggle.setAttribute('aria-expanded', 'false'); }
+    });
+  }
+  initPageNav([
+    { label: '2026 Power Ratings', url: DATA.dashboardUrl },
+    { label: 'FBS Team Finder', current: true },
+    { label: 'Strength of Schedule', url: DATA.sosUrl },
+  ]);
+
+  const state = {
+    conferences: new Set(CONFERENCES),
+    min: RATING_MIN,
+    max: RATING_MAX,
+    sortKey: 'rank',
+    sortDir: 1,
+  };
+
+  // ---------- Conference chips ----------
+  const confChips = document.getElementById('confChips');
+  CONFERENCES.forEach(c => {
+    const chip = document.createElement('button');
+    chip.className = 'conf-chip active';
+    chip.textContent = c;
+    chip.dataset.conf = c;
+    chip.addEventListener('click', () => {
+      if (state.conferences.has(c)) state.conferences.delete(c); else state.conferences.add(c);
+      chip.classList.toggle('active', state.conferences.has(c));
+      render();
+    });
+    confChips.appendChild(chip);
+  });
+  document.getElementById('selectAll').addEventListener('click', () => {
+    state.conferences = new Set(CONFERENCES);
+    [...confChips.children].forEach(c => c.classList.add('active'));
+    render();
+  });
+  document.getElementById('selectNone').addEventListener('click', () => {
+    state.conferences.clear();
+    [...confChips.children].forEach(c => c.classList.remove('active'));
+    render();
+  });
+
+  // ---------- Rating range slider (two overlapping inputs) ----------
+  const rangeMinEl = document.getElementById('rangeMin');
+  const rangeMaxEl = document.getElementById('rangeMax');
+  const rangeFill = document.getElementById('rangeFill');
+  const rangeVal = document.getElementById('rangeVal');
+  [rangeMinEl, rangeMaxEl].forEach(el => {
+    el.min = RATING_MIN; el.max = RATING_MAX; el.step = 0.5;
+  });
+  rangeMinEl.value = RATING_MIN;
+  rangeMaxEl.value = RATING_MAX;
+  document.getElementById('tickMin').textContent = RATING_MIN.toFixed(0);
+  document.getElementById('tickMax').textContent = RATING_MAX.toFixed(0);
+
+  function updateRangeUI() {
+    let lo = parseFloat(rangeMinEl.value), hi = parseFloat(rangeMaxEl.value);
+    if (lo > hi) { [lo, hi] = [hi, lo]; }
+    state.min = lo; state.max = hi;
+    const span = RATING_MAX - RATING_MIN || 1;
+    const leftPct = ((lo - RATING_MIN) / span) * 100;
+    const rightPct = ((hi - RATING_MIN) / span) * 100;
+    rangeFill.style.left = leftPct + '%';
+    rangeFill.style.width = Math.max(0, rightPct - leftPct) + '%';
+    rangeVal.textContent = lo.toFixed(1) + ' – ' + hi.toFixed(1);
+  }
+  rangeMinEl.addEventListener('input', () => { updateRangeUI(); render(); });
+  rangeMaxEl.addEventListener('input', () => { updateRangeUI(); render(); });
+  updateRangeUI();
+
+  // ---------- Table ----------
+  const resultsBody = document.getElementById('resultsBody');
+  const resultsCount = document.getElementById('resultsCount');
+  const emptyState = document.getElementById('emptyState');
+
+  function filteredRows() {
+    return TEAMS.filter(t => state.conferences.has(t.conference) && t.rating >= state.min && t.rating <= state.max);
+  }
+
+  function sortRows(rows) {
+    const key = state.sortKey, dir = state.sortDir;
+    rows.sort((a, b) => {
+      let av, bv;
+      if (key === 'team' || key === 'conference') { av = a[key]; bv = b[key]; return dir * av.localeCompare(bv); }
+      if (key === 'record') {
+        av = a.record.split('-').map(Number); bv = b.record.split('-').map(Number);
+        av = av[0] - av[1]; bv = bv[0] - bv[1];
+      } else { av = a[key]; bv = b[key]; }
+      return dir * (av - bv);
+    });
+    return rows;
+  }
+
+  function render() {
+    const rows = sortRows(filteredRows());
+    resultsCount.textContent = rows.length + ' of ' + TEAMS.length + ' teams';
+    resultsBody.innerHTML = '';
+    emptyState.style.display = rows.length === 0 ? 'block' : 'none';
+
+    rows.forEach(r => {
+      const tr = document.createElement('tr');
+
+      const tdRank = document.createElement('td'); tdRank.className = 'c-rank'; tdRank.textContent = r.rank; tr.appendChild(tdRank);
+      const tdTeam = document.createElement('td'); tdTeam.className = 'c-team'; tdTeam.textContent = r.team; tr.appendChild(tdTeam);
+      const tdConf = document.createElement('td'); tdConf.className = 'c-conf'; tdConf.textContent = r.conference; tr.appendChild(tdConf);
+
+      const tdRating = document.createElement('td');
+      const ratingWrap = document.createElement('div'); ratingWrap.className = 'c-rating';
+      const num = document.createElement('span'); num.className = 'num'; num.textContent = r.rating.toFixed(2);
+      const meter = document.createElement('div'); meter.className = 'rating-meter';
+      const fill = document.createElement('div'); fill.className = 'fill'; fill.style.width = Math.max(0, Math.min(100, r.rating)) + '%';
+      meter.appendChild(fill);
+      ratingWrap.appendChild(num); ratingWrap.appendChild(meter);
+      tdRating.appendChild(ratingWrap);
+      tr.appendChild(tdRating);
+
+      const tdRecord = document.createElement('td'); tdRecord.className = 'c-record'; tdRecord.textContent = r.record; tr.appendChild(tdRecord);
+
+      resultsBody.appendChild(tr);
+    });
+  }
+
+  document.querySelectorAll('table.finder thead th').forEach(th => {
+    th.addEventListener('click', () => {
+      const key = th.dataset.sort;
+      if (state.sortKey === key) { state.sortDir *= -1; }
+      else { state.sortKey = key; state.sortDir = (key === 'rank') ? 1 : -1; }
+      document.querySelectorAll('table.finder thead th').forEach(h => h.classList.remove('sorted'));
+      th.classList.add('sorted');
+      render();
+    });
+  });
+
+  render();
+})();
+</script>
