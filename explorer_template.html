@@ -143,6 +143,10 @@
   }
   table.finder thead th:hover { color: var(--ink); }
   table.finder thead th.sorted { color: var(--amber-text); }
+  /* Record's data is right-aligned (see .c-record below); match the header so it
+     sits above it, not skewed left. Rating keeps a left header -- its cell is a
+     flex bar+number, not a simple right-pinned value. */
+  table.finder thead th[data-sort="record"] { text-align: right; }
   table.finder tbody td { padding: 8px 10px; border-bottom: 1px solid var(--border); vertical-align: middle; }
   table.finder tbody tr:hover { background: var(--amber-wash); }
   .c-rank { font-family: "JetBrains Mono", monospace; color: var(--ink-muted); width: 34px; }

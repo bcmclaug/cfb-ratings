@@ -216,6 +216,13 @@
   }
   table.rankings thead th:hover { color: var(--ink); }
   table.rankings thead th.sorted { color: var(--amber-text); }
+  /* Numeric columns' data is right-aligned (see .c-rating/.c-delta/.c-record below);
+     match the header alignment to each column's data so they sit above it, not skewed left. */
+  table.rankings thead th[data-sort="rating"],
+  table.rankings thead th[data-sort="record"],
+  table.rankings thead th[data-sort="delta"],
+  table.rankings thead th[data-sort="poll"],
+  table.rankings thead th[data-sort="vspoll"] { text-align: right; }
   table.rankings tbody td { padding: 7px 10px; border-bottom: 1px solid var(--border); vertical-align: middle; }
   table.rankings tbody tr { cursor: pointer; transition: background 0.1s; }
   table.rankings tbody tr:hover { background: var(--amber-wash); }

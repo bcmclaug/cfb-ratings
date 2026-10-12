@@ -113,6 +113,11 @@
   }
   table.sos thead th:hover { color: var(--ink); }
   table.sos thead th.sorted { color: var(--amber-text); }
+  /* These columns' data is right-aligned (see .c-num below); match the header
+     alignment so it sits above it, not skewed left. */
+  table.sos thead th[data-sort="sos"],
+  table.sos thead th[data-sort="gamesPlayed"],
+  table.sos thead th[data-sort="record"] { text-align: right; }
   table.sos thead th.c-pick { cursor: default; }
   table.sos tbody td { padding: 7px 10px; border-bottom: 1px solid var(--border); vertical-align: middle; }
   table.sos tbody tr:hover { background: var(--amber-wash); }
