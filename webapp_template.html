@@ -96,6 +96,10 @@
     color: var(--amber-text); margin: 0 0 4px;
   }
   header.top p.sub { margin: 4px 0 0; color: var(--ink-secondary); font-size: 14.5px; max-width: 62ch; }
+  header.top .last-updated {
+    margin: 8px 0 0; font-family: "JetBrains Mono", monospace; font-size: 12px; color: var(--ink-muted);
+  }
+  header.top .last-updated .dot { color: var(--rise-text); }
   .page-nav { position: relative; display: inline-block; margin-top: 10px; }
   .page-nav-toggle {
     appearance: none; background: var(--surface-raised); border: 1px solid var(--border); color: var(--ink-secondary);
@@ -289,6 +293,7 @@
       <p class="eyebrow">Independent · Bias-Resistant Power Ratings</p>
       <h1>2026 College Football Ratings</h1>
       <p class="sub">Every team rated out of 100.00, carried forward week to week by who they played, how they won or lost, and what those opponents turned out to be.</p>
+      <p class="last-updated" id="lastUpdated"></p>
       <div class="page-nav" id="pageNav">
         <button class="page-nav-toggle" id="pageNavToggle" aria-haspopup="true" aria-expanded="false">
           Pages <span class="chev">&#9662;</span>
@@ -358,6 +363,18 @@
   const TEAMS = DATA.teams;
   const CONFERENCES = DATA.conferences;
   const POLL_NAME_BY_WEEK = DATA.pollNameByWeek;
+
+  if (DATA.generatedAt) {
+    const generated = new Date(DATA.generatedAt);
+    const formatted = generated.toLocaleString(undefined, {
+      dateStyle: 'medium', timeStyle: 'short',
+    });
+    const el = document.getElementById('lastUpdated');
+    el.innerHTML = '';
+    const dot = document.createElement('span'); dot.className = 'dot'; dot.textContent = '●';
+    el.appendChild(dot);
+    el.appendChild(document.createTextNode(' Data last updated ' + formatted));
+  }
 
   function initPageNav(pages) {
     const nav = document.getElementById('pageNav');

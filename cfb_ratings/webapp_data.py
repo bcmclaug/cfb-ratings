@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import argparse
 import json
+from datetime import datetime, timezone
 from pathlib import Path
 
 from .cfbd_client import CfbdClient, DATA_DIR
@@ -137,6 +138,7 @@ def build_data(client: CfbdClient, year: int) -> dict:
         "conferences": fbs_conferences,
         "explorerUrl": EXPLORER_URL,
         "sosUrl": SOS_URL,
+        "generatedAt": datetime.now(timezone.utc).isoformat(),
         "pollNameByWeek": [poll_name_by_week[w] for w in weeks],
         "teams": {
             t: {
